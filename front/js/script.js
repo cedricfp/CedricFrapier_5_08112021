@@ -27,3 +27,7 @@ fetch("http://localhost:3000/api/products")
         `;
     }
 })
+.catch(function(err){
+    alert("chargement impossible");
+    console.log(err);
+});
