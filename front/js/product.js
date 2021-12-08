@@ -7,11 +7,11 @@ let idProduit = params.get("id");
 
 //Récupération du canapé correspondant à l'URL en json
 fetch("http://localhost:3000/api/products/" + idProduit)
-    .then(function (res){
-       if (res.ok){
-           return res.json();
-       }
-    })
+.then(function (res){
+   if (res.ok){
+       return res.json();
+    }
+})
     
     //Insertion dans le code HTML de chaque canapé par rapport a son url
     .then(function (kanapItem){
@@ -29,43 +29,60 @@ fetch("http://localhost:3000/api/products/" + idProduit)
     document.getElementById("addToCart").addEventListener("click", function (event) {
     event.preventDefault();
     
-    //Importation de tous les elements de l'article au clic ()
-    let newItems = {
-        id : idProduit,
-        name : document.getElementById("title").innerHTML,
-        price : document.getElementById("price").innerHTML,
-        image : document.querySelector(".item__img img").getAttribute("src"),
-        altTxt : document.querySelector(".item__img img").getAttribute("alt"),
-        color : document.getElementById("colors").value,
-        quantity : document.getElementById("quantity").value
-     };   
-     console.log(newItems);
+        //déclaration de la variable dans laquelle on mettra les keys et les values du local storage
+        //Utilisation de JSON.parse pour récupérer les données actuellement en json dans le local storage en données javascript
+        let itemsStorage = JSON.parse(localStorage.getItem("product"));
 
-    
-    //déclaration de la variable dans laquelle on mettra les keys et les values du local storage
-    //Utilisation de JSON.parse pour récupérer les données actuellement en json dans le local storage en données javascript
-    let itemsStorage = JSON.parse(localStorage.getItem("product"));
+        //Ajout des données dans le tableau avec push
+        //convertion des données javascript en json avec json.stringify pour le local storage
+        const addStorage = function () {
+            itemsStorage.push(newItems);
+            localStorage.setItem("product", JSON.stringify(itemsStorage));
+        };
 
-    //Ajout des données dans le tableau avec push
-    //convertion des données javascript en json avec json.stringify pour le local storage
-    const addStorage = function () {
-        itemsStorage.push(optionItems);
-        localStorage.setItem("product", JSON.stringify(itemsStorage));
-    };
-    //Si il y a des objet dans le local storage
-    if(itemsStorage){
-    
-        
-    }
+        const addconfirm = function () {
+            alert("le produit a bien été ajouté à votre panier");
+        }
 
-    //Si il n'y a pas de produit dans le local storage
-    //Création d'un tableau comportant les données du produit seléctionné
-    else{
-        itemsStorage = [];
-        addStorage ();
-    }
+        //Importation de tous les elements de l'article au clic ()
+        let newItems = {
+            id : idProduit,
+            name : document.getElementById("title").innerHTML,
+            price : document.getElementById("price").innerHTML,
+            image : document.querySelector(".item__img img").getAttribute("src"),
+            altTxt : document.querySelector(".item__img img").getAttribute("alt"),
+            color : document.getElementById("colors").value,
+            quantity : document.getElementById("quantity").value
+        };   
+        console.log(newItems);
+
+        let update = false;
+
+            //Si il y a des objet dans le local storage
+        if(itemsStorage){
+            itemsStorage.forEach(function (itemTrue, key) {
+                if(itemTrue.id === id && itemTrue.color === colors.value){
+                itemsStorage[key].quantity = parseInt(itemTrue.quantity) + parseInt(document.getElementById("quantity").value);
+                update = true;
+                }
+            }); 
+        if (!update){
+            addStorage();
+            addconfirm();
+            console.log(itemsStorage);
+        }
+        }
+
+        //Si il n'y a pas de produit dans le local storage
+        //Création d'un tableau comportant les données du produit seléctionné
+        else{
+            itemsStorage = [];
+            addStorage ();
+            addconfirm();
+        }
     
     });
+
         
     
         
