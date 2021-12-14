@@ -1,50 +1,69 @@
 //Récupération du panier
-let itemsStorage = JSON.parse(localStorage.getItem("product"));
+const cart = JSON.parse(localStorage.getItem("product"));
 
+const cartHtml = document.getElementById("cart__items");
 
 //Affichage des produit séléctionné dans le panier (dynamique)
 
+function display(dataInCart){
+    //Si vide affichage panier vide
+    if (cart === nul || cart == 0){
+        cartHtml.innerHTML = '<p>Votre panier est vide</p>';
+    }
+    //si non affichage des produits 
+    else{
+    for(let cart of dataInCart) {
+        cartHtml.innerHTML += render(cart)
+    }
+    }
+}
 
-for(let cartKanape of itemsStorage) {
-    document.getElementById("cart__items").innerHTML +=
-    `<article class="cart__item" data-id="${cartKanape.id}" data-color="${cartKanape.color}">
+function render(cart){
+    return `
+    <article class="cart__item" data-id="${cart.id}" data-color="${cart.color}">
         <div class="cart__item__img">
-            <img src="${cartKanape.image}" alt="${cartKanape.altTxt}">
+            <img src="${cart.image}" alt="${cart.altTxt}">
         </div>
         <div class="cart__item__content">
             <div class="cart__item__content__description">
-                <h2>${cartKanape.name}</h2>
-                <p>${cartKanape.price} € </p>
+                <h2>${cart.name}</h2>
+                <p>${cart.price} € </p>
             </div>
             <div class="cart__item__content__settings">
                 <div class="cart__item__content__settings__quantity">
                     <p>Qté : </p>
-                    <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${cartKanape.quantity}">
+                    <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${cart.quantity}">
                 </div>
                 <div class="cart__item__content__settings__delete">
                 <p class="deleteItem">Supprimer</p>
                 </div>
             </div>
         </div>
-    </article>`
-    console.log(cartKanape);
+    </article>`;
 }
 
+//Affichage du total
+function total(){
+    //je récupère les quantités
+    let itemQtty = document.querySelector(".totalQuantity");
+    //variable pour la quantité total
+    let pdtLength = itemQtty.length;
+    let totalqtty = 0;
+    let totalPrice = 0;
 
-document.querySelectorAll(".deleteItem").forEach(element => {
-    element.addEventListener("click", function (event) {
-        event.preventDefault();
-        cartKanape.splice(1); 
-    });  
-    
-});
-    
-//let calculqty {
-    //let totalqty = 0;
-    //kanapInItemsStorage();
-        //document.getElementById("totalQuantity"),
-        //totalqty += parseInt(cartKanape.quantity),
-        //console.log(calculqty);
-    
-//}
+    //Boucle pour total qtty
+    for (var i = 0; i < pdtLength; i++){
+        totalqtty += itemQtty[i].valueAsNumber;
+    };
+    //Boucle pour total prix
+    for (var i = 0; i < pdtLength; i++){
+        totalPrice += (itemQtty[i].valueAsNumber * cart[i].price);
+    };
 
+    //Je transmet la valeur obtenu a mon html
+    let qttydisplay = document.getElementById("totalQuantity");
+    qttydisplay.innerHTML = totalqtty;
+
+    //
+
+}
