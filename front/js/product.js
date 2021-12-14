@@ -1,90 +1,86 @@
-//Récupération de l'URL de chaque produit individuellement
-
-let params = new URLSearchParams(document.location.search);
-let idProduit = params.get("id");
-
-
+const id = getDataFromUrl ("id");
 
 //Récupération du canapé correspondant à l'URL en json
-fetch("http://localhost:3000/api/products/" + idProduit)
-.then(function (res){
-   if (res.ok){
-       return res.json();
-    }
-})
-    
-    //Insertion dans le code HTML de chaque canapé par rapport a son url
-    .then(function (kanapItem){
-        console.log(kanapItem);
-        document.querySelector(".item__img").innerHTML = `<img src="${kanapItem.imageUrl}" alt="${kanapItem.altTxt}"></img>`
-        document.getElementById("title").innerHTML = kanapItem.name;
-        document.getElementById("price").innerHTML = kanapItem.price;
-        document.getElementById("description").innerHTML = kanapItem.description;
-        //boucle for pour allé chercher dans l'API toutes les couleurs disponible
-        for (let color of kanapItem.colors) {
+fetch("http://localhost:3000/api/products" + id) 
+.then((res) => res.json())
+.then (() => display(product))
+
+//Affichage du produit sur la page en fonction du code html
+function display(product){
+    document.querySelector(".item__img").innerHTML = `<img src="${product.imageUrl}" alt="${product.altTxt}"></img>`
+    document.getElementById("title").innerHTML = product.name;
+    document.getElementById("price").innerHTML = product.price;
+    document.getElementById("description").innerHTML = product.description;
+    //boucle for pour allé chercher dans l'API toutes les couleurs disponible
+    for (let color of product.colors) {
             document.getElementById("colors").innerHTML += `<option value=${color}>${color}</option>`
-        }
-    })   
+    }  
+}  
+//Récuperation de l'id de chaque produit individuellement
+function getDataFromUrl(key){
+    let params = new URLSearchParams(document.location.search);
+    return params.get(key);
+    
+} 
+
+
+//Importation de tous les elements de l'article au clic ()
+function listenForCartAddition(product){
     //Ecouter le bouton "ajouter" au produit et selection de ce dernier au clic
     document.getElementById("addToCart").addEventListener("click", function (event) {
-    event.preventDefault();
-    
-        //déclaration de la variable dans laquelle on mettra les keys et les values du local storage
-        //Utilisation de JSON.parse pour récupérer les données actuellement en json dans le local storage en données javascript
-        let itemsStorage = JSON.parse(localStorage.getItem("product"));
+        event.preventDefault();
+        // création des variables de qantité et de couleur
+        let qty = document.getElementById("quantity").value;
+        let color = document.getElementById("colors").value;
+        //création des messages d'alerte pour l'utilisateur
+        if (qty < 1){
+            alert("veuillez séléctionner une quantité");
+            return;
+        }
+        if (color.lenght < 2){
+            alert("veuillez séléctionner une couleur");
+            return;
+        }
+        let existInLocalStorage = !!localStorage.getItem("product");
 
-        //Ajout des données dans le tableau avec push
-        //convertion des données javascript en json avec json.stringify pour le local storage
-        const addStorage = function () {
-            itemsStorage.push(newItems);
-            localStorage.setItem("product", JSON.stringify(itemsStorage));
-        };
+        if (existInLocalStorage){
+            let items = JSON.parse(localStorage.getItem("product"));
 
-        const addconfirm = function () {
-            alert("le produit a bien été ajouté à votre panier");
+            let product = items.find(product =>{
+                return product.id === id && product.color === color;
+            })
+
+            if (!!product)
+            {
+                product.qty = Number(product.qty) + Number(qty)
+                localStorage.setItem("product", JSON.stringify(items));
+            }
+            else{
+                let newItem = {
+                    id: id,
+                    color: color,
+                    qty: qty
+                };
+
+                items.push(newItem)
+                localStorage.setItem("product", JSON.stringify(items));
+            }
+                
         }
 
-        //Importation de tous les elements de l'article au clic ()
-        let newItems = {
-            id : idProduit,
-            name : document.getElementById("title").innerHTML,
-            price : document.getElementById("price").innerHTML,
-            image : document.querySelector(".item__img img").getAttribute("src"),
-            altTxt : document.querySelector(".item__img img").getAttribute("alt"),
-            color : document.getElementById("colors").value,
-            quantity : document.getElementById("quantity").value
-        };   
-        console.log(newItems);
+        else {
+            let items = [];
 
-        let update = false;
+            let newItem = {
+                id: id,
+                color: color,
+                qty: qty
+            };
 
-            //Si il y a des objet dans le local storage
-        if(itemsStorage){
-            itemsStorage.forEach(function (itemTrue, key) {
-                if(itemTrue.id === id && itemTrue.color === colors.value){
-                itemsStorage[key].quantity = parseInt(itemTrue.quantity) + parseInt(document.getElementById("quantity").value);
-                update = true;
-                }
-            }); 
-        if (!update){
-            addStorage();
-            addconfirm();
-            console.log(itemsStorage);
+            items.push(newItem)
+            localStorage.setItem("product", JSON.stringify(items)); 
         }
-        }
-
-        //Si il n'y a pas de produit dans le local storage
-        //Création d'un tableau comportant les données du produit seléctionné
-        else{
-            itemsStorage = [];
-            addStorage ();
-            addconfirm();
-        }
-    
-    });
-
-        
-    
-        
-      
+    })
+} 
+ 
     
