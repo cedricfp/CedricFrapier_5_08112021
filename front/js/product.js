@@ -1,9 +1,13 @@
 const id = getDataFromUrl ("id");
 
 //Récupération du canapé correspondant à l'URL en json
-fetch("http://localhost:3000/api/products" + id) 
+fetch("http://localhost:3000/api/products/" + id) 
 .then((res) => res.json())
-.then (() => display(product))
+.then((product) => 
+{
+    display(product);
+    listenForCartAddition(product);
+})
 
 //Affichage du produit sur la page en fonction du code html
 function display(product){
@@ -25,7 +29,7 @@ function getDataFromUrl(key){
 
 
 //Importation de tous les elements de l'article au clic ()
-function listenForCartAddition(product){
+function listenForCartAddition(){
     //Ecouter le bouton "ajouter" au produit et selection de ce dernier au clic
     document.getElementById("addToCart").addEventListener("click", function (event) {
         event.preventDefault();
@@ -37,24 +41,30 @@ function listenForCartAddition(product){
             alert("veuillez séléctionner une quantité");
             return;
         }
-        if (color.lenght < 2){
+        if (color.length < 1){
             alert("veuillez séléctionner une couleur");
             return;
         }
-        let existInLocalStorage = !!localStorage.getItem("product");
 
+        //si les produits existent dans le local storage les prendre
+        let existInLocalStorage = !!localStorage.getItem("products");
+
+        //mise au format json
         if (existInLocalStorage){
-            let items = JSON.parse(localStorage.getItem("product"));
+            let items = JSON.parse(localStorage.getItem("products"));
 
             let product = items.find(product =>{
                 return product.id === id && product.color === color;
             })
 
+            //si le produits sont dans le storage les additionner
             if (!!product)
             {
                 product.qty = Number(product.qty) + Number(qty)
-                localStorage.setItem("product", JSON.stringify(items));
+                localStorage.setItem("products", JSON.stringify(items));
             }
+
+            //si non créer un nouvel item avec l'id la couleur et la qty
             else{
                 let newItem = {
                     id: id,
@@ -63,7 +73,9 @@ function listenForCartAddition(product){
                 };
 
                 items.push(newItem)
-                localStorage.setItem("product", JSON.stringify(items));
+                localStorage.setItem("products", JSON.stringify(items));
+                alert("l'article a bien été ajouté au panier");
+                return;
             }
                 
         }
@@ -78,7 +90,9 @@ function listenForCartAddition(product){
             };
 
             items.push(newItem)
-            localStorage.setItem("product", JSON.stringify(items)); 
+            localStorage.setItem("products", JSON.stringify(items)); 
+            alert("l'article a bien été ajouté au panier");
+                return;
         }
     })
 } 
