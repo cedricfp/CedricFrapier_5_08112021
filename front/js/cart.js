@@ -1,37 +1,47 @@
 //Récupération du panier
-const cart = JSON.parse(localStorage.getItem("product"));
-
+const cart = JSON.parse(localStorage.getItem("products"));
+console.log(cart);
 const cartHtml = document.getElementById("cart__items");
 
 //Affichage des produit séléctionné dans le panier (dynamique)
+fetch("http://localhost:3000/api/products/")
+.then((res) => res.json())
+.then((itemsInCart) => {
+    display(itemsInCart)
+    
+})
 
-function display(dataInCart){
+function display(){
+    
     //Si vide affichage panier vide
-    if (cart === nul || cart == 0){
+    if (cart === null || cart === 0){
         cartHtml.innerHTML = '<p>Votre panier est vide</p>';
     }
     //si non affichage des produits 
     else{
-    for(let cart of dataInCart) {
-        cartHtml.innerHTML += render(cart)
-    }
+    //affichage des produits qui sont dans le local storage
+        for (let product of cart){
+            cartHtml.innerHTML += render(product)
+        }
+    
     }
 }
 
-function render(cart){
-    return `
-    <article class="cart__item" data-id="${cart.id}" data-color="${cart.color}">
+
+function render(product){
+    return`
+    <article class="cart__item" data-id="${product.id}" data-color="${product.color}">
         <div class="cart__item__img">
-            <img src="${cart.image}" alt="${cart.altTxt}">
+            <img src="${product.image}" alt="${product.altTxt}">
         </div>
         <div class="cart__item__content">
             <div class="cart__item__content__description">
-                <h2>${cart.name}</h2>
-                <p>${cart.price} € </p>
+                <h2>${product.name}</h2>
+                <p>${product.price} € </p>
             </div>
             <div class="cart__item__content__settings">
                 <div class="cart__item__content__settings__quantity">
-                    <p>Qté : </p>
+                    <p>${product.quantity}</p>
                     <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${cart.quantity}">
                 </div>
                 <div class="cart__item__content__settings__delete">
