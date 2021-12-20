@@ -20,8 +20,13 @@ function display(){
     //si non affichage des produits 
     else{
     //affichage des produits qui sont dans le local storage
-        for (let product of cart){
-            cartHtml.innerHTML += render(product)
+        for (let localproduct of cart){
+            fetch("http://localhost:3000/api/products/" + localproduit.id)
+            .then((res) => res.json())
+            .then((localproduct) => {
+                localproduct = 
+            }
+            cartHtml.innerHTML += render(localproduct)
         }
     
     }
