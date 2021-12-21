@@ -2,6 +2,10 @@
 const cart = JSON.parse(localStorage.getItem("products"));
 console.log(cart);
 const cartHtml = document.getElementById("cart__items");
+var totalPrice = 0;
+var totalQty = 0;
+const sumPrice = document.getElementById("totalPrice");
+const sumQty = document.getElementById("totalQuantity");
 
 //Affichage des produit séléctionné dans le panier (dynamique)
 fetch("http://localhost:3000/api/products/")
@@ -21,23 +25,29 @@ function display(){
     else{
     //affichage des produits qui sont dans le local storage
         for (let localproduct of cart){
-            fetch("http://localhost:3000/api/products/" + localproduit.id)
+            fetch("http://localhost:3000/api/products/" + localproduct.id)
             .then((res) => res.json())
-            .then((localproduct) => {
-                localproduct = 
-            }
-            cartHtml.innerHTML += render(localproduct)
+            .then((product) => {
+                cartHtml.innerHTML += render(product, localproduct.color, localproduct.qty);
+                totalPrice += product.price * parseInt(localproduct.qty);
+                totalQty += parseInt(localproduct.qty);
+                
+                sumPrice.innerHTML = `${totalPrice}`
+                sumQty.innerHTML = `${totalQty}`
+                
+            })
+            
         }
     
     }
 }
 
 
-function render(product){
+function render(product, color, qty){
     return`
-    <article class="cart__item" data-id="${product.id}" data-color="${product.color}">
+    <article class="cart__item" data-id="${product.id}" data-color="${color}">
         <div class="cart__item__img">
-            <img src="${product.image}" alt="${product.altTxt}">
+            <img src="${product.imageUrl}" alt="${product.altTxt}">
         </div>
         <div class="cart__item__content">
             <div class="cart__item__content__description">
@@ -46,8 +56,8 @@ function render(product){
             </div>
             <div class="cart__item__content__settings">
                 <div class="cart__item__content__settings__quantity">
-                    <p>${product.quantity}</p>
-                    <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${cart.quantity}">
+                    <p>${qty}</p>
+                    <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${qty}">
                 </div>
                 <div class="cart__item__content__settings__delete">
                 <p class="deleteItem">Supprimer</p>
@@ -57,28 +67,4 @@ function render(product){
     </article>`;
 }
 
-//Affichage du total
-function total(){
-    //je récupère les quantités
-    let itemQtty = document.querySelector(".totalQuantity");
-    //variable pour la quantité total
-    let pdtLength = itemQtty.length;
-    let totalqtty = 0;
-    let totalPrice = 0;
 
-    //Boucle pour total qtty
-    for (var i = 0; i < pdtLength; i++){
-        totalqtty += itemQtty[i].valueAsNumber;
-    };
-    //Boucle pour total prix
-    for (var i = 0; i < pdtLength; i++){
-        totalPrice += (itemQtty[i].valueAsNumber * cart[i].price);
-    };
-
-    //Je transmet la valeur obtenu a mon html
-    let qttydisplay = document.getElementById("totalQuantity");
-    qttydisplay.innerHTML = totalqtty;
-
-    //
-
-}
