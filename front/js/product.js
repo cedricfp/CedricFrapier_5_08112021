@@ -60,7 +60,7 @@ function listenForCartAddition(){
             //si le produits sont dans le storage les additionner
             if (!!product)
             {
-                product.qty = Number(product.qty) + Number(qty)
+                product.qty = parseInt(product.qty) + parseInt(qty)
                 localStorage.setItem("products", JSON.stringify(items));
             }
 

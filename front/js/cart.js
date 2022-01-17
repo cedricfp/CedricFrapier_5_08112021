@@ -1,9 +1,8 @@
 //Récupération du panier
 const cart = JSON.parse(localStorage.getItem("products"));
-console.log(cart);
 const cartHtml = document.getElementById("cart__items");
-var totalPrice = 0;
-var totalQty = 0;
+let totalPrice = 0;
+let totalQty = 0;
 const sumPrice = document.getElementById("totalPrice");
 const sumQty = document.getElementById("totalQuantity");
 
@@ -24,28 +23,81 @@ function display(){
     //si non affichage des produits 
     else{
     //affichage des produits qui sont dans le local storage
-        for (let localproduct of cart){
-            fetch("http://localhost:3000/api/products/" + localproduct.id)
-            .then((res) => res.json())
-            .then((product) => {
-                cartHtml.innerHTML += render(product, localproduct.color, localproduct.qty);
-                totalPrice += product.price * parseInt(localproduct.qty);
-                totalQty += parseInt(localproduct.qty);
-                
+        fetch("http://localhost:3000/api/products/")
+        .then((res) => res.json())
+            .then((products) => 
+            {
+                let final = buildCompleteList(products, cart)
+                final.forEach(product => 
+                {
+                    cartHtml.innerHTML += render(product);
+                    totalPrice += product.price * parseInt(product.qty);
+                    totalQty += parseInt(product.qty);  
+
+                })
+
+                final.forEach(product => 
+                {
+                    listenForProductQtyChange(product);
+                })
+            
                 sumPrice.innerHTML = `${totalPrice}`
                 sumQty.innerHTML = `${totalQty}`
                 
             })
             
-        }
+    
     
     }
 }
 
+function buildCompleteList(products, cart)
+{
+    let final = [];
+    cart.forEach(itemsInCart => 
+    {
+        let product = products.find(item => item._id === itemsInCart.id)
+        itemsInCart._id = product._id
+        itemsInCart.name = product.name
+        itemsInCart.imageUrl = product.imageUrl
+        itemsInCart.price = product.price
+        itemsInCart.description = product.description
+        itemsInCart.altTxt = product.altTxt
 
-function render(product, color, qty){
+        final.push(itemsInCart)
+    })
+
+    return final;
+}
+
+function listenForProductQtyChange(item)
+{
+    document.getElementById(`qty-${item._id}-${item.color}`).addEventListener('input', (e) => {
+        let qty = e.target.value;
+
+        let product = cart.find(product => {
+            return product.id == item.id && product.color === item.color;
+        })
+
+        product.qty = parseInt(qty);
+
+        localStorage.setItem("products", JSON.stringify(cart));
+
+        location.reload();
+    })
+}
+
+function listenForProductDelete(item)
+{
+    document.querySelector(".deleteItem").addEventListener('click', (e) => {
+        
+    })
+}
+
+
+function render(product){
     return`
-    <article class="cart__item" data-id="${product.id}" data-color="${color}">
+    <article class="cart__item" data-id="${product.id}" data-color="${product.color}">
         <div class="cart__item__img">
             <img src="${product.imageUrl}" alt="${product.altTxt}">
         </div>
@@ -56,8 +108,8 @@ function render(product, color, qty){
             </div>
             <div class="cart__item__content__settings">
                 <div class="cart__item__content__settings__quantity">
-                    <p>${qty}</p>
-                    <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${qty}">
+                    <p>${product.qty}</p>
+                    <input type="number" class="itemQuantity" id="qty-${product._id}-${product.color}" name="itemQuantity" min="1" max="100" value="${product.qty}">
                 </div>
                 <div class="cart__item__content__settings__delete">
                 <p class="deleteItem">Supprimer</p>
