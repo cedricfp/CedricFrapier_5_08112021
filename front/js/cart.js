@@ -87,9 +87,11 @@ function listenForProductQtyChange(item)
 // fonction pour supprimer un article du panier
 function listenForProductDelete(item)
 {
+    // selection de larticle grace a son id et sa couleur
     document.getElementById(`deleteItem-${item._id}-${item.color}`).addEventListener('click', (e) => {
         console.log(item._id)
 
+        
         const index = cart.findIndex(product =>{
             return product.id === item.id && product.color === item.color;
         })
