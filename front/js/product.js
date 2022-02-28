@@ -21,6 +21,8 @@ fetch("http://localhost:3000/api/products/" + id)
  * @param   {String}  product.altTxt    le texte alternatif
  * @return  {void}             manipule le DOM
  */
+
+//Affichage des elements present dans l'api dans le dom
 function display(product){
     document.querySelector(".item__img").innerHTML = `<img src="${product.imageUrl}" alt="${product.altTxt}"></img>`
     document.getElementById("title").innerHTML = product.name;
@@ -91,7 +93,7 @@ function listenForCartAddition(){
                     color: color,
                     qty: qty
                 };
-
+                //pousser le nouvel element dans newitem
                 items.push(newItem)
                 localStorage.setItem("products", JSON.stringify(items));
                 alert("l'article a bien été ajouté au panier");
@@ -99,7 +101,7 @@ function listenForCartAddition(){
             }
                 
         }
-
+        //si non créer un nouvel item avec l'id la couleur et la qty
         else {
             let items = [];
 
